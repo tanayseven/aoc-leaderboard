@@ -78,7 +78,7 @@ def display_leaderboard(data: dict, team_name: str):
 
     # Display table
     headers = ['Name', 'Completion Day Level', 'Stars', 'Local Score', 'Last Star Earned']
-    print(tabulate(table_data, headers=headers, tablefmt='grid'))
+    print(tabulate(table_data, headers=headers, tablefmt='fancy_grid'))
     print()
 
 
