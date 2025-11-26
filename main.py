@@ -1,8 +1,8 @@
 import sys
+from datetime import datetime
 from pathlib import Path
 
 import httpx
-import json
 
 from tabulate import tabulate
 
@@ -31,7 +31,7 @@ def fetch_leaderboard(url: str, session_cookie: str = None) -> dict:
 def format_completion_days(completion_day_level: dict) -> str:
     """Format the completion day level data as a sub-table."""
     if not completion_day_level:
-        return "None"
+        return "No days yet"
 
     days = sorted(completion_day_level.keys(), key=int)
     day_data = []
@@ -58,18 +58,26 @@ def display_leaderboard(data: dict, team_name: str):
     # Prepare table data
     table_data = []
     for member_id, member_info in members.items():
+        last_star_unix_ts = member_info['last_star_ts']
+        last_star_ts = datetime.fromtimestamp(last_star_unix_ts)
+        last_star_time_format = "%Y-%m-%d %H:%M:%S"
+        if last_star_unix_ts == 0:
+            last_star_earned = "No stars earned yet"
+        else:
+            last_star_earned = last_star_ts.strftime(last_star_time_format)
         table_data.append([
             member_info['name'],
             format_completion_days(member_info['completion_day_level']),
             member_info['stars'],
-            member_info['local_score']
+            member_info['local_score'],
+            last_star_earned,
         ])
 
     # Sort by local_score (descending), then by stars (descending)
     table_data.sort(key=lambda x: (x[3], x[2]), reverse=True)
 
     # Display table
-    headers = ['Name', 'Completion Day Level', 'Stars', 'Local Score']
+    headers = ['Name', 'Completion Day Level', 'Stars', 'Local Score', 'Last Star Earned']
     print(tabulate(table_data, headers=headers, tablefmt='grid'))
     print()
 
