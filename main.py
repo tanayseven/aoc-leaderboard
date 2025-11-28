@@ -8,16 +8,6 @@ from tabulate import tabulate
 
 
 def fetch_leaderboard(url: str, session_cookie: str = None) -> dict:
-    """
-    Fetch the Advent of Code private leaderboard data.
-
-    Args:
-        url: The leaderboard JSON URL
-        session_cookie: Your AoC session cookie (required for authentication)
-
-    Returns:
-        Dictionary containing the leaderboard data
-    """
     headers = {}
     if session_cookie:
         headers['Cookie'] = f'session={session_cookie}'
@@ -29,7 +19,6 @@ def fetch_leaderboard(url: str, session_cookie: str = None) -> dict:
 
 
 def format_completion_days(completion_day_level: dict) -> str:
-    """Format the completion day level data as a sub-table."""
     if not completion_day_level:
         return "No days yet"
 
@@ -50,13 +39,18 @@ def display_leaderboard(data: dict, team_name: str):
     """Display the leaderboard data as a formatted table."""
     event = data['event']
     members = data['members']
+    today = datetime.today().strftime("%d %B %Y")
+    padding = 4
 
-    print(f"\n{'=' * 60}")
-    print(f"Advent of Code {event} - {team_name} Leaderboard")
-    print(f"{'=' * 60}\n")
+    message = f"{' ' * padding}Advent of Code {event} - {team_name} Leaderboard - {today}{' ' * padding}"
+
+    print(f"\n{'=' * len(message)}")
+    print(message)
+    print(f"{'=' * len(message)}\n")
 
     # Prepare table data
     table_data = []
+    no = 1
     for member_id, member_info in members.items():
         last_star_unix_ts = member_info['last_star_ts']
         last_star_ts = datetime.fromtimestamp(last_star_unix_ts)
@@ -66,18 +60,20 @@ def display_leaderboard(data: dict, team_name: str):
         else:
             last_star_earned = last_star_ts.strftime(last_star_time_format)
         table_data.append([
+            no if last_star_unix_ts != 0 else '-',
             member_info['name'],
             format_completion_days(member_info['completion_day_level']),
             member_info['stars'],
             member_info['local_score'],
             last_star_earned,
         ])
+        no += 1
 
     # Sort by local_score (descending), then by stars (descending)
     table_data.sort(key=lambda x: (x[3], x[2]), reverse=True)
 
     # Display table
-    headers = ['Name', 'Completion Day Level', 'Stars', 'Local Score', 'Last Star Earned']
+    headers = ['#', 'Name', 'Completion Day Level', 'Stars', 'Local Score', 'Last Star Earned']
     print(tabulate(table_data, headers=headers, tablefmt='fancy_grid'))
     print()
 
