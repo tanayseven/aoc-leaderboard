@@ -50,7 +50,6 @@ def display_leaderboard(data: dict, team_name: str):
 
     # Prepare table data
     table_data = []
-    no = 1
     for member_id, member_info in members.items():
         last_star_unix_ts = member_info['last_star_ts']
         last_star_ts = datetime.fromtimestamp(last_star_unix_ts)
@@ -60,17 +59,21 @@ def display_leaderboard(data: dict, team_name: str):
         else:
             last_star_earned = last_star_ts.strftime(last_star_time_format)
         table_data.append([
-            no if last_star_unix_ts != 0 else '-',
+            '-',
             member_info['name'],
             format_completion_days(member_info['completion_day_level']),
             member_info['stars'],
             member_info['local_score'],
             last_star_earned,
         ])
-        no += 1
 
     # Sort by local_score (descending), then by stars (descending)
-    table_data.sort(key=lambda x: (x[3], x[2]), reverse=True)
+    table_data.sort(key=lambda x: (x[4], x[3]), reverse=True)
+    no = 1
+    for row in table_data:
+        if row[5] != "No stars earned yet":
+            row[0] = no
+            no += 1
 
     # Display table
     headers = ['#', 'Name', 'Completion Day Level', 'Stars', 'Local Score', 'Last Star Earned']
