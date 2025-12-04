@@ -27,7 +27,7 @@ def format_completion_days(completion_day_level: dict) -> str:
 
     for day in days:
         stars_for_day = len(completion_day_level[day])
-        star_display = '⭐' * stars_for_day
+        star_display = '*' * stars_for_day
         day_data.append([f"Day {day}", star_display])
 
     # Create a simple sub-table
